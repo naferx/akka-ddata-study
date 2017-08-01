@@ -1,5 +1,6 @@
 package com.github.naferx
 
+
 import scala.concurrent.duration._
 import akka.cluster.ddata.DistributedData
 import akka.cluster.ddata.FlagKey
@@ -23,6 +24,7 @@ object VotingService {
 }
 
 class VotingService extends Actor {
+
   import akka.cluster.ddata.Replicator._
   import VotingService._
 
@@ -30,7 +32,7 @@ class VotingService extends Actor {
   implicit val cluster = Cluster(context.system)
   val OpenedKey = FlagKey("contestOpened")
   val ClosedKey = FlagKey("contestClosed")
-  val CountersKey = PNCounterMapKey("contestCounters")
+  val CountersKey = PNCounterMapKey[String]("contestCounters")
 
   replicator ! Subscribe(OpenedKey, self)
 
@@ -39,7 +41,7 @@ class VotingService extends Actor {
       replicator ! Update(OpenedKey, Flag(), WriteAll(5.seconds))(_.switchOn)
       becomeOpen()
 
-    case c @ Changed(OpenedKey) if c.get(OpenedKey).enabled =>
+    case c@Changed(OpenedKey) if c.get(OpenedKey).enabled =>
       becomeOpen()
 
     case GetVotes =>
@@ -53,8 +55,8 @@ class VotingService extends Actor {
   }
 
   def open: Receive = {
-    case v @ Vote(participant) =>
-      val update = Update(CountersKey, PNCounterMap(), WriteLocal, request = Some(v)) {
+    case v@Vote(participant) =>
+      val update = Update(CountersKey, PNCounterMap[String](), WriteLocal, request = Some(v)) {
         _.increment(participant, 1)
       }
       replicator ! update
@@ -65,7 +67,7 @@ class VotingService extends Actor {
       replicator ! Update(ClosedKey, Flag(), WriteAll(5.seconds))(_.switchOn)
       context.become(getVotes(open = false))
 
-    case c @ Changed(ClosedKey) if c.get(ClosedKey).enabled =>
+    case c@Changed(ClosedKey) if c.get(ClosedKey).enabled =>
       context.become(getVotes(open = false))
   }
 
@@ -73,16 +75,15 @@ class VotingService extends Actor {
     case GetVotes =>
       replicator ! Get(CountersKey, ReadAll(3.seconds), Some(GetVotesReq(sender())))
 
-    case g @ GetSuccess(CountersKey, Some(GetVotesReq(replyTo))) =>
+    case g@GetSuccess(CountersKey, Some(GetVotesReq(replyTo))) =>
       val data = g.get(CountersKey)
       replyTo ! Votes(data.entries, open)
 
     case NotFound(CountersKey, Some(GetVotesReq(replyTo))) =>
       replyTo ! Votes(Map.empty, open)
 
-    case _: GetFailure[_]    =>
+    case _: GetFailure[_] =>
 
     case _: UpdateSuccess[_] =>
   }
-
 }

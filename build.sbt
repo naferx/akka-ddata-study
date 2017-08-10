@@ -1,7 +1,8 @@
 import com.typesafe.sbt.SbtMultiJvm.multiJvmSettings
 import com.typesafe.sbt.SbtMultiJvm.MultiJvmKeys.MultiJvm
 
-val akkaVersion = "2.5.3"
+val akkaVersion = "2.5.4"
+val akkaHttpVersion = "10.0.9"
 
 val `akka-ddata-study` = project
   .in(file("."))
@@ -14,10 +15,19 @@ val `akka-ddata-study` = project
     javaOptions in run ++= Seq("-Xms128m", "-Xmx1024m"),
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+      "com.typesafe.akka" %% "akka-slf4j" % akkaVersion,
       "com.typesafe.akka" %% "akka-remote" % akkaVersion,
       "com.typesafe.akka" %% "akka-cluster" % akkaVersion,
       "com.typesafe.akka" %% "akka-distributed-data" % akkaVersion,
       "com.typesafe.akka" %% "akka-multi-node-testkit" % akkaVersion,
+      "ch.qos.logback"            %     "logback-classic"            %    "1.1.7",
+
+      "com.typesafe.akka" %% "akka-persistence" % akkaVersion,
+      "org.iq80.leveldb"            % "leveldb"          % "0.7",
+      "org.fusesource.leveldbjni"   % "leveldbjni-all"   % "1.8",
+
+      "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
+      "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
       "org.scalatest" %% "scalatest" % "3.0.1" % Test),
     fork in run := true,
     // disable parallel tests

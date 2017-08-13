@@ -34,3 +34,8 @@ val `akka-ddata-study` = project
     parallelExecution in Test := false
   )
   .configs (MultiJvm)
+
+addCommandAlias("seed1", "run -DROLES.0=seed -DPORT=2551")
+addCommandAlias("seed2", "run -DROLES.0=seed -DPORT=2551")
+addCommandAlias("frontend1", "run -DROLES.0=frontend -DPORT=8081")
+addCommandAlias("frontend2", "run -DROLES.0=frontend -DPORT=8082")

@@ -1,21 +1,17 @@
 package com.github.naferx
 
 import akka.actor.ActorSystem
-import akka.event.LoggingAdapter
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directive
+import akka.http.scaladsl.server.{Directive, HttpApp, Route}
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 
 import scala.io.StdIn
 
-object HttpServer extends App {
 
-  implicit val system = ActorSystem("HttpServer")
-  implicit val materializer = ActorMaterializer()
-  implicit val executionContext = system.dispatcher
+object HttpServer extends HttpApp {
 
-  val loggingRequest: Directive[Unit] =
+  private val loggingRequest: Directive[Unit] =
     extractRequestContext.flatMap { ctx =>
       extractClientIP.flatMap { client =>
           mapRequest { request =>
@@ -26,7 +22,7 @@ object HttpServer extends App {
     }
 
 
-  val routes = loggingRequest {
+  override val routes: Route = loggingRequest {
     path("services") {
       get {
         complete("selecting resource")
@@ -37,10 +33,12 @@ object HttpServer extends App {
     }
   }
 
-  val binding =
-    Http().bindAndHandle(routes, "0.0.0.0", 8089)
+  /*
+  private val binding =
+    Http().bindAndHandle(routes, interface, port)
   println(
-    s"Server online at http://0.0.0.0:8089/\nPress RETURN to stop...")
+    s"Server online at http://${interface}:${port}/\nPress RETURN to stop...")
   StdIn.readLine()
   binding.flatMap(_.unbind()).onComplete(_ => system.terminate())
+  */
 }

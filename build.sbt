@@ -35,7 +35,7 @@ val `akka-ddata-study` = project
   )
   .configs (MultiJvm)
 
-addCommandAlias("seed1", "run -DROLES.0=seed -DPORT=2551")
-addCommandAlias("seed2", "run -DROLES.0=seed -DPORT=2551")
-addCommandAlias("frontend1", "run -DROLES.0=frontend -DPORT=8081")
-addCommandAlias("frontend2", "run -DROLES.0=frontend -DPORT=8082")
+addCommandAlias("seed1", ";run --- -Dcluster.role=seed -Dcluster.port=2551")
+addCommandAlias("seed2", ";run --- -Dcluster.role=seed -Dcluster.port=2555")
+addCommandAlias("frontend1", ";run --- -Dcluster.role=frontend -Dcluster.port=2651 -Dserver.port=8081")
+addCommandAlias("frontend2", ";run --- -Dcluster.role=frontend -Dcluster.port=2652 -Dserver.port=8082")
